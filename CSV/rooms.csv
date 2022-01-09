@@ -1,0 +1,11 @@
+id,room_number,is_available,room_size
+2,101,true,4
+3,102,true,2
+4,103,true,2
+5,104,true,2
+6,105,true,1
+7,201,true,4
+8,202,true,2
+9,203,true,2
+10,204,true,2
+11,205,true,1

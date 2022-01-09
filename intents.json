@@ -32,15 +32,30 @@
       "responses": ["Happy to help!", "Any time!", "My pleasure"]
     },
     {
-      "tag": "items",
+      "tag": "rooms",
       "patterns": [
-        "Which items do you have?",
-        "What kinds of items are there?",
-        "What do you sell?"
+        "Do you have any rooms free?",
+        "Are there any rooms available?",
+        "Is there a room accessible"
       ],
       "responses": [
-        "We sell coffee and tea",
-        "We have coffee and tea"
+        "Give me a minute, I need to check rooms",
+        "Please wait, I need to check if we have",
+        "Please wait"
+      ]
+    },
+    {
+      "tag": "reserve",
+      "patterns": [
+        "Can I have a room for two",
+        "I want to make reservation",
+        "I want to book a room",
+        "Could i get a room ?"
+      ],
+      "responses": [
+        "Yes, please enter your: First name, last name and PESEL number",
+        "Yes, please provide your: Name, surname and PESEL",
+        "In order to make a reservation please provide your: Name Surname and PESEL"
       ]
     },
     {
@@ -52,20 +67,8 @@
         "Are you cash only?"
       ],
       "responses": [
-        "We accept VISA, Mastercard and Paypal",
-        "We accept most major credit cards, and Paypal"
-      ]
-    },
-    {
-      "tag": "delivery",
-      "patterns": [
-        "How long does delivery take?",
-        "How long does shipping take?",
-        "When do I get my delivery?"
-      ],
-      "responses": [
-        "Delivery takes 2-4 days",
-        "Shipping takes 2-4 days"
+        "We accept VISA, Mastercard, Paypal and BLIK",
+        "We accept most major credit cards, Paypal and BLIK"
       ]
     },
     {

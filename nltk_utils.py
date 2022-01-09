@@ -1,9 +1,12 @@
 import nltk
 import numpy as np
 from nltk.stem.porter import PorterStemmer
+from nltk.tag import pos_tag
+from word2number import w2n
 
-# download punkt when first run
+# download when first run
 # nltk.download("punkt")
+# nltk.download('averaged_perceptron_tagger')
 
 stemmer = PorterStemmer()
 
@@ -25,6 +28,11 @@ def bag_of_words(tokenized_sentence, all_words):
 
     return bag
 
+
+def nltk_tagger(sentence):
+    nltk_tag = pos_tag([w.lower() for w in sentence])
+    numbers = [w2n.word_to_num(tag) for tag, token in nltk_tag if token == "CD"]
+    return numbers
 # MANUAL TESTS
 # tokenization
 # a = "How long does shipping take?"
