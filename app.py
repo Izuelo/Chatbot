@@ -1,6 +1,6 @@
 from tkinter import *
 from chat import Hotel
-
+from asr import detect_asr
 
 BG_GREY = "#ABB2B9"
 BG_COLOR = "#17202A"
@@ -8,6 +8,10 @@ TEXT_COLOR = "#EAECEE"
 
 FONT = "Helvetica 14"
 FONT_BOLD = "Helvetica 14 bold"
+
+
+def send_asr(msg, btn, a):
+    detect_asr(msg, btn, a)
 
 
 class ChatApp:
@@ -22,7 +26,7 @@ class ChatApp:
     def _setup_main_window(self):
         self.window.title("Chat")
         self.window.resizable(width=False, height=False)
-        self.window.configure(width=470, height=550, bg=BG_COLOR)
+        self.window.configure(width=670, height=550, bg=BG_COLOR)
 
         head_label = Label(self.window, bg=BG_COLOR, fg=TEXT_COLOR, text="Chat application", font=FONT_BOLD, pady=6)
         head_label.place(relwidth=1)
@@ -41,20 +45,24 @@ class ChatApp:
         self.bot_label.place(relwidth=1, rely=0.825)
 
         self.stringvar = StringVar()
-        self.msg = Entry(self.bot_label, bg="#2C3E50", fg=TEXT_COLOR, font=FONT)
-        self.msg.place(relwidth=0.74, relheight=0.06, rely=0.008, relx=0.011)
+        self.msg = Entry(self.bot_label, bg="#2C3E50", fg=TEXT_COLOR, font=FONT, )
+        self.msg.place(relwidth=0.52, relheight=0.06, rely=0.008, relx=0.011)
         self.msg.focus()
         self.msg.bind("<Return>", self._on_send)
 
-        self.send_btn = Button(self.bot_label, text="Send", font=FONT_BOLD, width=20, bg=BG_GREY,
+        self.send_btn = Button(self.bot_label, text="Send", font=FONT_BOLD, width=25, bg=BG_GREY,
                                command=lambda: self._on_send(None))
-        self.send_btn.place(relx=0.77, rely=0.008, relheight=0.06, relwidth=0.22)
+        self.send_btn.place(relx=0.55, rely=0.008, relheight=0.06, relwidth=0.22)
+
+        self.asr_button = Button(self.bot_label, text="ASR", font=FONT_BOLD, width=25, bg=BG_GREY)
+        self.asr_button.place(relx=0.77, rely=0.008, relheight=0.06, relwidth=0.22)
+        self.asr_button.configure(command=lambda: send_asr(self.msg, self.asr_button, self.send_btn))
 
     def _on_send(self, _):
         m = self.msg.get()
-        self._insert_message(m, "You")
+        self.insert_message(m, "You")
 
-    def _insert_message(self, m, sender):
+    def insert_message(self, m, sender):
         if not m:
             return
         self.msg.delete(0, END)
@@ -75,19 +83,24 @@ class ChatApp:
 
     def insert_input(self):
         msg_input = Entry(self.bot_label, bg="#2C3E50", fg=TEXT_COLOR, font=FONT)
-        msg_input.place(relwidth=0.74, relheight=0.06, rely=0.008, relx=0.011)
+        msg_input.place(relwidth=0.52, relheight=0.06, rely=0.008, relx=0.011)
         msg_input.focus()
         input_btn = Button(self.bot_label, text="Send", font=FONT_BOLD, width=20, bg=BG_GREY,
                            command=lambda: self.stringvar.set(msg_input.get()))
-        input_btn.place(relx=0.77, rely=0.008, relheight=0.06, relwidth=0.22)
+        input_btn.place(relx=0.55, rely=0.008, relheight=0.06, relwidth=0.22)
 
         msg_input.bind("<Return>", lambda event: input_btn.invoke())
+
+        asr_input = Button(self.bot_label, text="ASR", font=FONT_BOLD, width=25, bg=BG_GREY)
+        asr_input.place(relx=0.77, rely=0.008, relheight=0.06, relwidth=0.22)
+        asr_input.configure(command=lambda: send_asr(msg_input, asr_input, input_btn))
 
         input_btn.wait_variable(self.stringvar)
         m = self.stringvar.get()
 
         input_btn.destroy()
         msg_input.destroy()
+        asr_input.destroy()
 
         m1 = f"You: {m}\n\n"
         self.text_area.configure(state=NORMAL)

@@ -26,5 +26,5 @@ def play_sound(s):
     finally:
         thread_queue.pop(0)
         if len(thread_queue) > 0:
-            thread_queue[0].start();
+            thread_queue[0].start()
         sys.exit()
