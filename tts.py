@@ -4,10 +4,14 @@ from playsound import playsound
 import os
 import sys
 
+thread_queue = []
+
 
 def play_tts(sentence):
     t = threading.Thread(target=play_sound, kwargs={"s": sentence})
-    t.start()
+    thread_queue.append(t)
+    if len(thread_queue) == 1:
+        thread_queue[0].start()
 
 
 def play_sound(s):
@@ -20,4 +24,7 @@ def play_sound(s):
     except PermissionError:
         pass
     finally:
+        thread_queue.pop(0)
+        if len(thread_queue) > 0:
+            thread_queue[0].start();
         sys.exit()
