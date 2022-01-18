@@ -2,96 +2,61 @@ import random
 import json
 import torch
 
-from Entities.Client import Client
-from Entities.Reservations import Reservation
-from Entities.Rooms import Rooms
+from interactions import check_for_room, make_reservation, list_of_reservations
 from model import NeuralNet
 from nltk_utils import bag_of_words, tokenize, nltk_tagger
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-with open("intents.json", "r") as f:
-    intents = json.load(f)
-
-FILE = "data.pth"
-data = torch.load(FILE)
-input_size = data["input_size"]
-hidden_size = data["hidden_size"]
-output_size = data["output_size"]
-all_words = data["all_words"]
-tags = data["tags"]
-model_state = data["model_state"]
-
-model = NeuralNet(input_size, hidden_size, output_size).to(device)
-model.load_state_dict(model_state)
-model.eval()
-
-enable_chat = True
-bot_name = "Sam"
-print("Let's chat! type 'quit' to exit")
+from tts import play_tts
 
 
-def check_for_room():
-    print(f"{bot_name}: {random.choice(intent['responses'])}")
-    if sentence_nums:
-        number_of_rooms = Rooms.select().where(
-            Rooms.is_available == True and Rooms.room_size == sentence_nums[0]).count()
-    else:
-        number_of_rooms = Rooms.select().where(
-            Rooms.is_available == True).count()
-    print(f"{bot_name}: There are {number_of_rooms} room(s) available at this moment")
+class Hotel:
+    def __init__(self, chatbot):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.chatbot = chatbot
+        with open("intents.json", "r") as f:
+            self.intents = json.load(f)
 
+        self.FILE = "data.pth"
+        self.data = torch.load(self.FILE)
+        self.input_size = self.data["input_size"]
+        self.hidden_size = self.data["hidden_size"]
+        self.output_size = self.data["output_size"]
+        self.all_words = self.data["all_words"]
+        self.tags = self.data["tags"]
+        self.model_state = self.data["model_state"]
 
-def make_reservation():
-    print(f"{bot_name}: {random.choice(intent['responses'])}")
+        self.model = NeuralNet(self.input_size, self.hidden_size, self.output_size).to(self.device)
+        self.model.load_state_dict(self.model_state)
+        self.model.eval()
+        self.bot_name = "Sam"
 
-    room = Rooms.select().where(Rooms.is_available == True)
-    if room.exists():
-        name = input("First name >> ")
-        surname = input("Last name >> ")
-        pesel = input("PESEL >> ")
-
-        client = Client.select().where(Client.pesel == pesel)
-        if client.exists():
-            client = Client.select().where(Client.pesel == pesel).get()
-        else:
-            client = Client(name=name, surname=surname, pesel=pesel)
-            client.save()
-
-        room = room.get()
-        room.is_available = False
-        room.save()
-        reservation = Reservation(client=client, room=room, is_active=True)
-        reservation.save()
-    else:
-        print(f"{bot_name}: There are no rooms available. We are sorry :C")
-
-
-while enable_chat:
-    sentence = input("You: ")
-    if sentence == "quit":
-        enable_chat = False
-    else:
+    def get_response(self, sentence):
         sentence = tokenize(sentence)
         sentence_nums = nltk_tagger(sentence)
-        x = bag_of_words(sentence, all_words)
+        x = bag_of_words(sentence, self.all_words)
         x = x.reshape(1, x.shape[0])
         x = torch.from_numpy(x)
 
-        output = model(x)
+        output = self.model(x)
         _, predicted = torch.max(output, dim=1)
-        tag = tags[predicted.item()]
+        tag = self.tags[predicted.item()]
 
         probs = torch.softmax(output, dim=1)
         prob = probs[0][predicted.item()]
-
+        interactions_tags = ["rooms", "reserve", "my reservations"]
         if prob.item() > 0.75:
-            for intent in intents["intents"]:
+            for intent in self.intents["intents"]:
                 if tag == intent["tag"] and intent["tag"] == "rooms":
-                    check_for_room()
+                    check_for_room(self.bot_name, sentence_nums, intent, self.chatbot)
                 if tag == intent["tag"] and intent["tag"] == "reserve":
-                    make_reservation()
-                elif tag == intent["tag"]:
-                    print(f"{bot_name}: {random.choice(intent['responses'])}")
+                    make_reservation(self.bot_name, intent, self.chatbot)
+                if tag == intent["tag"] and intent["tag"] == "my reservations":
+                    list_of_reservations(self.bot_name, intent, self.chatbot)
+                elif tag == intent["tag"] and tag not in interactions_tags:
+                    say = random.choice(intent['responses'])
+                    self.chatbot.insert_response(say)
+                    play_tts(say)
         else:
-            print(f"{bot_name}: I don't understand... Could you rephrase the question?")
+            say = "I don't understand... Could you rephrase the question?"
+            self.chatbot.insert_response(say)
+            play_tts(say)
+

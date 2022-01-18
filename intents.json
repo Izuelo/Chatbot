@@ -59,8 +59,22 @@
       ]
     },
     {
+      "tag": "my reservations",
+      "patterns": [
+        "Can I see all of my reservations?",
+        "I need to check my reservation",
+        "I want to get a list of my reservations"
+      ],
+      "responses": [
+        "Yes, please provide your PESEL, while I will prepare the data",
+        "Please wait. I need your PESEL to list all your reservations"
+      ]
+    },
+    {
       "tag": "payments",
       "patterns": [
+        "What payment method do you accept",
+        "How can i pay at the hotel?",
         "Do you take credit cards?",
         "Do you accept Mastercard?",
         "Can I pay with Paypal?",
