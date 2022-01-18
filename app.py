@@ -1,6 +1,7 @@
 from tkinter import *
 from chat import Hotel
 from asr import detect_asr
+from tts import play_tts
 
 BG_GREY = "#ABB2B9"
 BG_COLOR = "#17202A"
@@ -20,7 +21,16 @@ class ChatApp:
         self._setup_main_window()
         self.hotel = Hotel(self)
 
+    def greetings(self):
+        m = "Hello, how can i help you?"
+        s = f"{self.hotel.bot_name}: {m}\n\n"
+        self.text_area.configure(state=NORMAL)
+        self.text_area.insert(END, s)
+        self.text_area.configure(state=DISABLED)
+        play_tts(m)
+
     def run(self):
+        self.window.after_idle(self.greetings)
         self.window.mainloop()
 
     def _setup_main_window(self):
