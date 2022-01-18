@@ -31,9 +31,9 @@ def make_reservation(bot_name, intent,chatbot):
 
     room = Rooms.select().where(Rooms.is_available == True)
     if room.exists():
-        name = input()
-        surname = input("Last name >> ")
-        pesel = input("PESEL >> ")
+        name = chatbot.insert_input()
+        surname = chatbot.insert_input()
+        pesel = chatbot.insert_input()
 
         client = Client.select().where(Client.pesel == pesel)
         if client.exists():
@@ -61,7 +61,7 @@ def list_of_reservations(bot_name, intent,chatbot):
     chatbot.insert_response(say)
     play_tts(say)
 
-    pesel = input("PESEL >> ")
+    pesel = chatbot.insert_input()
 
     say = "I'm collecting all your reservations and will list them in a moment"
     chatbot.insert_response(say)

@@ -1,6 +1,6 @@
 from tkinter import *
 from chat import Hotel
-from tts import play_tts
+
 
 BG_GREY = "#ABB2B9"
 BG_COLOR = "#17202A"
@@ -37,19 +37,20 @@ class ChatApp:
         scrollbar = Scrollbar(self.text_area, command=self.text_area.yview)
         scrollbar.place(relheight=1, relx=0.974)
 
-        bot_label = Label(self.window, bg=BG_GREY, height=80)
-        bot_label.place(relwidth=1, rely=0.825)
+        self.bot_label = Label(self.window, bg=BG_GREY, height=80)
+        self.bot_label.place(relwidth=1, rely=0.825)
 
-        self.msg = Entry(bot_label, bg="#2C3E50", fg=TEXT_COLOR, font=FONT)
+        self.stringvar = StringVar()
+        self.msg = Entry(self.bot_label, bg="#2C3E50", fg=TEXT_COLOR, font=FONT)
         self.msg.place(relwidth=0.74, relheight=0.06, rely=0.008, relx=0.011)
         self.msg.focus()
         self.msg.bind("<Return>", self._on_send)
 
-        self.send_btn = Button(bot_label, text="Send", font=FONT_BOLD, width=20, bg=BG_GREY,
-                          command=lambda: self._on_send(None))
+        self.send_btn = Button(self.bot_label, text="Send", font=FONT_BOLD, width=20, bg=BG_GREY,
+                               command=lambda: self._on_send(None))
         self.send_btn.place(relx=0.77, rely=0.008, relheight=0.06, relwidth=0.22)
 
-    def _on_send(self, event):
+    def _on_send(self, _):
         m = self.msg.get()
         self._insert_message(m, "You")
 
@@ -73,7 +74,28 @@ class ChatApp:
         self.text_area.see(END)
 
     def insert_input(self):
-        self.send_btn.waitvar()
+        msg_input = Entry(self.bot_label, bg="#2C3E50", fg=TEXT_COLOR, font=FONT)
+        msg_input.place(relwidth=0.74, relheight=0.06, rely=0.008, relx=0.011)
+        msg_input.focus()
+        input_btn = Button(self.bot_label, text="Send", font=FONT_BOLD, width=20, bg=BG_GREY,
+                           command=lambda: self.stringvar.set(msg_input.get()))
+        input_btn.place(relx=0.77, rely=0.008, relheight=0.06, relwidth=0.22)
+
+        msg_input.bind("<Return>", lambda event: input_btn.invoke())
+
+        input_btn.wait_variable(self.stringvar)
+        m = self.stringvar.get()
+
+        input_btn.destroy()
+        msg_input.destroy()
+
+        m1 = f"You: {m}\n\n"
+        self.text_area.configure(state=NORMAL)
+        self.text_area.insert(END, m1)
+        self.text_area.configure(state=DISABLED)
+
+        self.msg.focus()
+        return m
 
 
 if __name__ == "__main__":
